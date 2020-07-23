@@ -34,7 +34,8 @@ mongoose
   .connect(MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
   })
   .then(self => {
     console.log(`Connected to the database: "${self.connection.name}"`);
@@ -56,6 +57,26 @@ mongoose
   })
   .then(recipes => {
     recipes.map(recipe => console.log(recipe.title));
+  })
+  .then(() => {
+    return Recipe.findOneAndUpdate(
+      { title: 'Rigatoni alla Genovese' },
+      { duration: 100 }
+    );
+  })
+  .then(recipe => {
+    console.log(
+      'The duration of the Rigatoni alla Genovese has been updated',
+      recipe
+    );
+    return Recipe.findOneAndDelete({ title: 'Carrot cake' });
+  })
+  .then(recipe => {
+    console.log('Recipe was deleted', recipe);
+    mongoose.disconnect();
+  })
+  .then(() => {
+    console.log('Disconnected from MongoDB');
   })
 
   .catch(error => {
